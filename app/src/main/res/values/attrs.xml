@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="ConcaveArrowView">
+        <!--箭头长度-->
+        <attr name="arrow_length" format="dimension"/>
+        <!--箭头高度-->
+        <attr name="arrow_height" format="dimension"/>
+        <!--箭头之间的间距-->
+        <attr name="arrow_spacing" format="dimension"/>
+
+        <attr name="arrow_color" format="color"/>
+
+        <!--移动速度, 像素/秒-->
+        <attr name="arrow_move_speed" format="integer"/>
+    </declare-styleable>
+
+    <declare-styleable name="ConcaveArrowProgress">
+        <attr name="max" format="integer"/>
+        <attr name="progress" format="integer"/>
+    </declare-styleable>
+</resources>
