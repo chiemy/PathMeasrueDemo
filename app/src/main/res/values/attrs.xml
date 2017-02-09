@@ -18,4 +18,9 @@
         <attr name="max" format="integer"/>
         <attr name="progress" format="integer"/>
     </declare-styleable>
+
+    <declare-styleable name="CircleProgressBar">
+        <attr name="radius" format="dimension"/>
+        <attr name="stroke_width" format="dimension"/>
+    </declare-styleable>
 </resources>
