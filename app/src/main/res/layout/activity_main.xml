@@ -67,11 +67,4 @@
         android:max="500"
         />
 
-    <com.chiemy.demo.pathmeasuredemo.CalendarAnimView
-        android:id="@+id/calendar_anim_view"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:src="@mipmap/calendar"
-        />
-
 </RelativeLayout>

@@ -8,8 +8,6 @@ public class MainActivity extends AppCompatActivity implements SeekBar.OnSeekBar
     private ConcaveArrowProgress mConcaveArrowProgress;
     private ConcaveArrowView mConcaveArrowView;
 
-    private CalendarAnimView mCalendarAnimView;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -29,20 +27,6 @@ public class MainActivity extends AppCompatActivity implements SeekBar.OnSeekBar
         SeekBar speedSeekBar = (SeekBar) findViewById(R.id.seekBar_speed);
         speedSeekBar.setOnSeekBarChangeListener(this);
         speedSeekBar.setProgress((int) mConcaveArrowView.getMoveSpeed());
-
-        mCalendarAnimView = (CalendarAnimView) findViewById(R.id.calendar_anim_view);
-        mCalendarAnimView.post(new Runnable() {
-            @Override
-            public void run() {
-                mCalendarAnimView.showLoading();
-            }
-        });
-        mCalendarAnimView.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                mCalendarAnimView.showSuccess();
-            }
-        }, 4000);
     }
 
     @Override

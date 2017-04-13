@@ -18,6 +18,7 @@ import android.support.annotation.IntRange;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
+import android.util.TypedValue;
 import android.view.Gravity;
 
 import static android.animation.ObjectAnimator.ofInt;
@@ -28,41 +29,37 @@ import static android.animation.ObjectAnimator.ofInt;
  * Description:
  */
 
-public class CalendarAnimView extends android.support.v7.widget.AppCompatImageView {
-    private Paint mPaint;
+public class CustomLoadingView extends android.support.v7.widget.AppCompatImageView {
     private DotDrawable mDotOneDrawable, mDotTwoDrawable, mDotThreeDrawable;
     private LineDrawable mLineOneDrawable, mLineTwoDrawable, mLineThreeDrawable;
 
-    private static final int STATE_LOADING = 1;
-    private static final int STATE_SUCCESS = 2;
-    private int mState;
+    public static final int STATE_NONE = -1;
+    public static final int STATE_LOADING = 1;
+    public static final int STATE_SUCCESS = 2;
+    private int mState = STATE_NONE;
 
     private int mLineWidth = 15;
-
-    private int mPointLeft;
-    private float mLineLeft;
 
     private int mColor = Color.parseColor("#DD4B39");
 
     private Drawable mHookDrawable;
 
-    public CalendarAnimView(Context context) {
+    private float mPaddingTop;
+    private float mPaddingLeft;
+    private float mVerticalSpacing;
+    private float mLineLeft;
+
+    public CustomLoadingView(Context context) {
         super(context);
         init();
     }
 
-    public CalendarAnimView(Context context, @Nullable AttributeSet attrs) {
+    public CustomLoadingView(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
         init();
     }
 
     public void init() {
-        mPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        // 抗锯齿(边缘平衡无锯齿)
-        mPaint.setAntiAlias(true);
-        // 防抖动(颜色过渡自然)
-        mPaint.setDither(true);
-
         mDotOneDrawable = new DotDrawable(mColor);
         mDotOneDrawable.setCallback(this);
 
@@ -71,6 +68,11 @@ public class CalendarAnimView extends android.support.v7.widget.AppCompatImageVi
 
         mDotThreeDrawable = new DotDrawable(mColor);
         mDotThreeDrawable.setCallback(this);
+
+        // 隐藏
+        mDotOneDrawable.setAlpha(0);
+        mDotTwoDrawable.setAlpha(0);
+        mDotThreeDrawable.setAlpha(0);
 
         mLineOneDrawable = new LineDrawable(mColor);
         mLineOneDrawable.setCallback(this);
@@ -81,31 +83,41 @@ public class CalendarAnimView extends android.support.v7.widget.AppCompatImageVi
         mLineThreeDrawable = new LineDrawable(mColor);
         mLineThreeDrawable.setCallback(this);
 
+        // 隐藏
+        mLineOneDrawable.setEndPosition(0);
+        mLineTwoDrawable.setEndPosition(0);
+        mLineThreeDrawable.setEndPosition(0);
+
         Drawable drawable = getResources().getDrawable(R.mipmap.hook);
         mHookDrawable = new ClipDrawable(drawable, Gravity.LEFT, ClipDrawable.HORIZONTAL);
         mHookDrawable.setBounds(0, 0, drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight());
         mHookDrawable.setLevel(0);
+
+        mLineWidth = (int) dpToPx(4);
+    }
+
+    private float dpToPx(float dp) {
+        return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp, getResources().getDisplayMetrics());
     }
 
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         super.onSizeChanged(w, h, oldw, oldh);
-        mPointLeft = w / 5;
-        mLineLeft = w * 0.35f;
         mDotOneDrawable.setBounds(0, 0, mLineWidth, mLineWidth);
         mDotTwoDrawable.setBounds(mDotOneDrawable.getBounds());
         mDotThreeDrawable.setBounds(mDotOneDrawable.getBounds());
-        mDotOneDrawable.setAlpha(0);
-        mDotTwoDrawable.setAlpha(0);
-        mDotThreeDrawable.setAlpha(0);
 
-        mLineOneDrawable.setBounds(0, 0, (int) (w * 0.4f), mLineWidth);
+        int lineLength = (int) (w * 0.4f);
+        int shortLineLength = (int) (w * 0.2f);
+
+        mLineOneDrawable.setBounds(0, 0, lineLength, mLineWidth);
         mLineTwoDrawable.setBounds(mLineOneDrawable.getBounds());
-        mLineThreeDrawable.setBounds(0, 0, (int) (w * 0.3f), mLineWidth);
-        mLineOneDrawable.setEndPosition(0);
-        mLineTwoDrawable.setEndPosition(0);
-        mLineThreeDrawable.setEndPosition(0);
+        mLineThreeDrawable.setBounds(0, 0, shortLineLength, mLineWidth);
 
+        mPaddingTop = h * 0.45f;
+        mPaddingLeft = w / 5;
+        mVerticalSpacing = h * 0.13f;
+        mLineLeft = w * 0.35f;
     }
 
     @Override
@@ -122,13 +134,13 @@ public class CalendarAnimView extends android.support.v7.widget.AppCompatImageVi
 
     private void drawPoint(Canvas canvas) {
         canvas.save();
-        canvas.translate(mPointLeft, getHeight() * 0.4f);
+        canvas.translate(mPaddingLeft, mPaddingTop);
         mDotOneDrawable.draw(canvas);
 
-        canvas.translate(0, getHeight() * 0.16f);
+        canvas.translate(0, mVerticalSpacing);
         mDotTwoDrawable.draw(canvas);
 
-        canvas.translate(0, getHeight() * 0.16f);
+        canvas.translate(0, mVerticalSpacing);
         mDotThreeDrawable.draw(canvas);
 
         canvas.restore();
@@ -136,13 +148,13 @@ public class CalendarAnimView extends android.support.v7.widget.AppCompatImageVi
 
     private void drawLine(Canvas canvas) {
         canvas.save();
-        canvas.translate(mLineLeft, getHeight() * 0.4f);
+        canvas.translate(mLineLeft, mPaddingTop);
         mLineOneDrawable.draw(canvas);
 
-        canvas.translate(0, getHeight() * 0.16f);
+        canvas.translate(0, mVerticalSpacing);
         mLineTwoDrawable.draw(canvas);
 
-        canvas.translate(0, getHeight() * 0.16f);
+        canvas.translate(0, mVerticalSpacing);
         mLineThreeDrawable.draw(canvas);
 
         canvas.restore();
@@ -169,13 +181,18 @@ public class CalendarAnimView extends android.support.v7.widget.AppCompatImageVi
         mLineOneDrawable.show(mShowListener);
     }
 
-    public void showSuccess() {
+    public void showSuccess(Animator.AnimatorListener listener) {
         mState = STATE_SUCCESS;
         invalidate();
         ObjectAnimator animator = ObjectAnimator
                 .ofInt(mHookDrawable, "level", 0, 10000)
                 .setDuration(700);
+        animator.addListener(listener);
         animator.start();
+    }
+
+    public int getState() {
+        return mState;
     }
 
     private DrawableAnimatorListener mShowListener = new DrawableAnimatorListener() {
